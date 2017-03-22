@@ -28,7 +28,7 @@ class Host:
     def create(self, name, password, customer, memory):
         # #创建文件夹,ftp目录，也是容器卷，设置用户vsftpd增加安全性
         # cmdline = 'mkdir /odoo/{0} && chown -R vsftpd /odoo/{0} && mkdir /odoo/{0}/extra-addons && chown -R vsftpd /odoo/{0}/extra-addons && mkdir /odoo/{0}/backups && chown -R vsftpd /odoo/{0}/backups'.format(name)
-        cmdline = 'mkdir /odoo/{0} && mkdir /odoo/{0}/extra-addons && chmod 777 /odoo/{0}/extra-addons && mkdir /odoo/{0}/backups'.format(name)
+        cmdline = 'mkdir /odoo/{0} && mkdir /odoo/{0}/addons && mkdir /odoo/{0}/extra-addons && chmod 777 /odoo/{0}/extra-addons && mkdir /odoo/{0}/data  && chmod 777 /odoo/{0}/data'.format(name)
         (status , output) = cmd.getstatusoutput(cmdline)
         print (status, output)
         #创建容器
@@ -137,9 +137,9 @@ class Host:
             aliyun.scale: '1'
         restart: always
         volumes:
-            - /odoo/{0}/extra-addons:/mnt/extra-addons
-            - /odoo/{0}/backups:/mnt/backups
-            - /usr/lib/python2.7/dist-packages/odoo/addons
+            - /odoo/{0}/extra-addons:/extra-addons
+            - /odoo/{0}/data:/data
+            - /odoo/{0}/addons:/usr/lib/python2.7/dist-packages/odoo/addons
             - /etc/odoo
             - /var/lib/postgresql
             - /var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
