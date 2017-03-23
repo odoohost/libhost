@@ -82,7 +82,7 @@ class Host:
 
     #更新FTP密码
     @staticmethod
-    def update_ftp_password(self, name, newpwd, oldpwd):
+    def update_ftp_password(name, newpwd, oldpwd):
         users = bsddb.db.DB()
         users.open('/etc/vsftpd/users.db',dbtype=bsddb.db.DB_HASH)
         if users[name] == oldpwd:
