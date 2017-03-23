@@ -139,7 +139,7 @@ class Host:
         volumes:
             - /odoo/{0}/extra-addons:/extra-addons
             - /odoo/{0}/data:/data
-            - /odoo/{0}/addons:/usr/lib/python2.7/dist-packages/odoo/addons
+            - /odoo/{0}/addons:/addons
             - /etc/odoo
             - /var/lib/postgresql
             - /var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
