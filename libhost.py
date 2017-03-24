@@ -139,8 +139,8 @@ class Host:
                 aliyun.scale: '1'
             restart: always
             volumes:
-                - odoo/{0}/extra-addons:/extra-addons
-                - odoo/{0}/data:/data
+                - /mnt/acs_mnt/nas/odoo/{0}/extra-addons:/extra-addons
+                - /mnt/acs_mnt/nas/odoo/{0}/data:/data
                 - /etc/odoo
                 - /var/lib/postgresql
                 - /var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
@@ -160,8 +160,8 @@ class Host:
                 aliyun.scale: '1'
             restart: always
             volumes:
-                - /odoo/{0}/extra-addons:/extra-addons
-                - /odoo/{0}/data:/data
+                - /mnt/acs_mnt/nas/odoo/{0}/extra-addons:/extra-addons
+                - /mnt/acs_mnt/nas/odoo/{0}/data:/data
                 - /etc/odoo
                 - /var/lib/postgresql
                 - /var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
