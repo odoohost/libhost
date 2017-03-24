@@ -11,7 +11,7 @@ import os
 
 class Host:
 
-    def __init__(self,cluster_address,domain,path,prod):
+    def __init__(self,cluster_address,domain,path,prod=False):
         self.DOMAIN = domain
         self.CLUSTER_ADDRESS = cluster_address
         self.VERIFY = os.path.abspath(path+'/ca.pem')
