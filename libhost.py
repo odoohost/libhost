@@ -128,7 +128,7 @@ class Host:
             template = """{0}:
             expose:
                 - 8069/tcp
-            image: 'registry.cn-hangzhou.aliyuncs.com/odoohost/odoo10'
+            image: 'registry-vpc.cn-hangzhou.aliyuncs.com/odoohost/odoo10'
             mem_limit: {1}
             environment:
                 - 'ODOO_RC=/etc/odoo/odoo.conf'
@@ -160,8 +160,8 @@ class Host:
                 aliyun.scale: '1'
             restart: always
             volumes:
-                - /mnt/acs_mnt/nas/odoo/{0}/extra-addons:/extra-addons
-                - /mnt/acs_mnt/nas/odoo/{0}/data:/data
+                - /odoo/{0}/extra-addons:/extra-addons
+                - /odoo/{0}/data:/data
                 - /etc/odoo
                 - /var/lib/postgresql
                 - /var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
