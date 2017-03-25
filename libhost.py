@@ -135,6 +135,7 @@ class Host:
             uri_proxy += ','+uri
             uri_routing += ';'+uri
 
+        #备忘：当使用NAS后无法映射到主机目录，目录总为空
         template = """{0}:
         expose:
             - 8069/tcp
@@ -151,9 +152,9 @@ class Host:
         volumes:
             - {5}/{0}/extra-addons:/extra-addons
             - {5}/{0}/data:/data
-            - {5}/{0}/etc/odoo:/etc/odoo
-            - {5}/{0}/var/lib/postgresql:/var/lib/postgresql
-            - {5}/{0}/var/lib/odoo:/var/lib/odoo""".format(name, memory, uri_proxy, uri_routing, self.IMAGE, self.HOST_BASE_FOLDER)
+            - /etc/odoo
+            - /var/lib/postgresql
+            - /var/lib/odoo""".format(name, memory, uri_proxy, uri_routing, self.IMAGE, self.HOST_BASE_FOLDER)
         print template
 
         payload = {
