@@ -12,12 +12,20 @@ import os
 class Host:
 
     def __init__(self,cluster_address,domain,path,prod=False):
-        self.DOMAIN = domain
-        self.CLUSTER_ADDRESS = cluster_address
         self.VERIFY = os.path.abspath(path+'/ca.pem')
         self.CERT = (os.path.abspath(path+'/cert.pem'),os.path.abspath(path+'/key.pem'))
         self.PROD = prod
-
+        if prod:
+            self.IMAGE = 'registry-vpc.cn-hangzhou.aliyuncs.com/odoohost/odoo10'
+            self.DOMAIN = 'rajasoft.cn'
+            self.CLUSTER_ADDRESS = 'https://master4g4.cs-cn-hangzhou.aliyun.com:13121/projects/'
+            self.HOST_BASE_FOLDER = '/mnt/acs_mnt/nas/odoo'
+        else
+            self.IMAGE = 'registry.cn-hangzhou.aliyuncs.com/odoohost/odoo10'
+            self.DOMAIN = 'youbaninfo.com'
+            self.CLUSTER_ADDRESS = 'https://master4g1.cs-cn-shanghai.aliyun.com:19504/projects/'
+            self.HOST_BASE_FOLDER = '/odoo'
+        
     #查询
     def view(self,name):
         res = req.get(self.CLUSTER_ADDRESS+name, verify=self.VERIFY, cert=self.CERT)
@@ -27,9 +35,10 @@ class Host:
     #name实例名称不能重复
     #customer客户名称
     def create(self, name, password, customer, memory):
+        # 0表示不受限制，供测试环境
+        memory = '0'
         # #创建文件夹,ftp目录，也是容器卷，设置用户vsftpd增加安全性
-        # cmdline = 'mkdir /odoo/{0} && chown -R vsftpd /odoo/{0} && mkdir /odoo/{0}/extra-addons && chown -R vsftpd /odoo/{0}/extra-addons && mkdir /odoo/{0}/backups && chown -R vsftpd /odoo/{0}/backups'.format(name)
-        cmdline = 'mkdir /odoo/{0} && mkdir /odoo/{0}/addons && mkdir /odoo/{0}/extra-addons && chmod 777 /odoo/{0}/extra-addons && mkdir /odoo/{0}/data  && chmod 777 /odoo/{0}/data'.format(name)
+        cmdline = 'mkdir /odoo/{0} && mkdir /odoo/{0}/extra-addons && chmod 777 /odoo/{0}/extra-addons && mkdir /odoo/{0}/data  && chmod 777 /odoo/{0}/data'.format(name)
         (status , output) = cmd.getstatusoutput(cmdline)
         print (status, output)
         #创建容器
@@ -73,6 +82,8 @@ class Host:
     #更新内存
     #更新用户自定义域名，为空可使用“实例名.根域名”
     def update(self, name, customer, memory, uri=None):
+        # 0表示不受限制，供测试环境
+        memory = '0'
         #如果用户没有指定自己的域名则用下列的
         json_payload = self._set_json_payload(name,customer,memory,uri)
         res = req.post(self.CLUSTER_ADDRESS+name+'/update',json=json_payload, verify=self.VERIFY, cert=self.CERT)
@@ -141,9 +152,9 @@ class Host:
             volumes:
                 - /mnt/acs_mnt/nas/odoo/{0}/extra-addons:/extra-addons
                 - /mnt/acs_mnt/nas/odoo/{0}/data:/data
-                - /etc/odoo
-                - /var/lib/postgresql
-                - /var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
+                - /mnt/acs_mnt/nas/odoo/{0}/etc/odoo:/etc/odoo
+                - /mnt/acs_mnt/nas/odoo/{0}/var/lib/postgresql:/var/lib/postgresql
+                - /mnt/acs_mnt/nas/odoo/{0}/var/lib/odoo:/var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
             print template
         else:
             template = """{0}:
@@ -162,9 +173,9 @@ class Host:
             volumes:
                 - /odoo/{0}/extra-addons:/extra-addons
                 - /odoo/{0}/data:/data
-                - /etc/odoo
-                - /var/lib/postgresql
-                - /var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
+                - /odoo/{0}/etc/odoo:/etc/odoo
+                - /odoo/{0}/var/lib/postgresql:/var/lib/postgresql
+                - /odoo/{0}/var/lib/odoo:/var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
             print template
         payload = {
             "name": name,
