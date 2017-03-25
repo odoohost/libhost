@@ -11,7 +11,7 @@ import os
 
 class Host:
 
-    def __init__(self,cluster_address,domain,path,prod=False):
+    def __init__(self, cluster_address, domain, path, prod=False):
         self.VERIFY = os.path.abspath(path+'/ca.pem')
         self.CERT = (os.path.abspath(path+'/cert.pem'),os.path.abspath(path+'/key.pem'))
         self.PROD = prod
@@ -20,14 +20,14 @@ class Host:
             self.DOMAIN = 'rajasoft.cn'
             self.CLUSTER_ADDRESS = 'https://master4g4.cs-cn-hangzhou.aliyun.com:13121/projects/'
             self.HOST_BASE_FOLDER = '/mnt/acs_mnt/nas/odoo'
-        else
+        else:
             self.IMAGE = 'registry.cn-hangzhou.aliyuncs.com/odoohost/odoo10'
             self.DOMAIN = 'youbaninfo.com'
             self.CLUSTER_ADDRESS = 'https://master4g1.cs-cn-shanghai.aliyun.com:19504/projects/'
             self.HOST_BASE_FOLDER = '/odoo'
         
     #查询
-    def view(self,name):
+    def view(self, name):
         res = req.get(self.CLUSTER_ADDRESS+name, verify=self.VERIFY, cert=self.CERT)
         return json.loads(res.content)
 
@@ -135,48 +135,27 @@ class Host:
             uri_proxy += ','+uri
             uri_routing += ';'+uri
 
-        if self.PROD:
-            template = """{0}:
-            expose:
-                - 8069/tcp
-            image: 'registry-vpc.cn-hangzhou.aliyuncs.com/odoohost/odoo10'
-            mem_limit: {1}
-            environment:
-                - 'ODOO_RC=/etc/odoo/odoo.conf'
-                - 'PGDATA=/var/lib/postgresql/data'
-            labels:
-                aliyun.proxy.VIRTUAL_HOST: '{2}'
-                aliyun.routing.port_8069: '{3}'
-                aliyun.scale: '1'
-            restart: always
-            volumes:
-                - /mnt/acs_mnt/nas/odoo/{0}/extra-addons:/extra-addons
-                - /mnt/acs_mnt/nas/odoo/{0}/data:/data
-                - /mnt/acs_mnt/nas/odoo/{0}/etc/odoo:/etc/odoo
-                - /mnt/acs_mnt/nas/odoo/{0}/var/lib/postgresql:/var/lib/postgresql
-                - /mnt/acs_mnt/nas/odoo/{0}/var/lib/odoo:/var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
-            print template
-        else:
-            template = """{0}:
-            expose:
-                - 8069/tcp
-            image: 'registry.cn-hangzhou.aliyuncs.com/odoohost/odoo10'
-            mem_limit: {1}
-            environment:
-                - 'ODOO_RC=/etc/odoo/odoo.conf'
-                - 'PGDATA=/var/lib/postgresql/data'
-            labels:
-                aliyun.proxy.VIRTUAL_HOST: '{2}'
-                aliyun.routing.port_8069: '{3}'
-                aliyun.scale: '1'
-            restart: always
-            volumes:
-                - /odoo/{0}/extra-addons:/extra-addons
-                - /odoo/{0}/data:/data
-                - /odoo/{0}/etc/odoo:/etc/odoo
-                - /odoo/{0}/var/lib/postgresql:/var/lib/postgresql
-                - /odoo/{0}/var/lib/odoo:/var/lib/odoo""".format(name, memory, uri_proxy, uri_routing)
-            print template
+        template = """{0}:
+        expose:
+            - 8069/tcp
+        image: '{4}'
+        mem_limit: {1}
+        environment:
+            - 'ODOO_RC=/etc/odoo/odoo.conf'
+            - 'PGDATA=/var/lib/postgresql/data'
+        labels:
+            aliyun.proxy.VIRTUAL_HOST: '{2}'
+            aliyun.routing.port_8069: '{3}'
+            aliyun.scale: '1'
+        restart: always
+        volumes:
+            - {5}/{0}/extra-addons:/extra-addons
+            - {5}/{0}/data:/data
+            - {5}/{0}/etc/odoo:/etc/odoo
+            - {5}/{0}/var/lib/postgresql:/var/lib/postgresql
+            - {5}/{0}/var/lib/odoo:/var/lib/odoo""".format(name, memory, uri_proxy, uri_routing, self.IMAGE, self.HOST_BASE_FOLDER)
+        print template
+
         payload = {
             "name": name,
             "description": customer,
