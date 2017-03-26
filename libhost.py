@@ -35,7 +35,7 @@ class Host:
     #name实例名称不能重复
     #customer客户名称
     def create(self, name, password, customer, memory):
-        # 0表示不受限制，供测试环境
+        # 0表示不受限制，供试用
         memory = '0'
         # #创建文件夹,ftp目录，也是容器卷，设置用户vsftpd增加安全性
         cmdline = 'mkdir /odoo/{0} && mkdir /odoo/{0}/extra-addons && chmod 777 /odoo/{0}/extra-addons && mkdir /odoo/{0}/data  && chmod 777 /odoo/{0}/data'.format(name)
@@ -80,11 +80,10 @@ class Host:
 
     #更新
     #更新内存
-    #更新用户自定义域名，为空可使用“实例名.根域名”
+    #更新用户自定义域名，不自定义可以使用“实例名.根域名”
     def update(self, name, customer, memory, uri=None):
-        # 0表示不受限制，供测试环境
+        # 0表示不受限制，供试用
         memory = '0'
-        #如果用户没有指定自己的域名则用下列的
         json_payload = self._set_json_payload(name,customer,memory,uri)
         res = req.post(self.CLUSTER_ADDRESS+name+'/update',json=json_payload, verify=self.VERIFY, cert=self.CERT)
         print (res.status_code, res.content)
@@ -101,6 +100,7 @@ class Host:
             users[name] = newpwd
             users.close()
             return True
+        users.close()
         return False
 
 
