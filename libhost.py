@@ -68,7 +68,7 @@ class Host:
                 users = bsddb.db.DB()
                 users.open('/etc/vsftpd/users.db',dbtype=bsddb.db.DB_HASH)
                 del users[name]
-            except:
+            finally:
                 users.close()
             (status,output) = cmd.getstatusoutput('rm -rf /etc/vsftpd/'+name)
             print (status, output)
