@@ -19,12 +19,12 @@ class Host:
             self.IMAGE = 'registry-vpc.cn-hangzhou.aliyuncs.com/odoohost/odoo10'
             self.DOMAIN = 'rajasoft.cn'
             self.CLUSTER_ADDRESS = 'https://master4g4.cs-cn-hangzhou.aliyun.com:13121/projects/'
-            self.HOST_BASE_FOLDER = '/mnt/acs_mnt/nas/odoo'
+            self.HOST_BASE_DIR = '/mnt/acs_mnt/nas/odoo'
         else:
             self.IMAGE = 'registry.cn-hangzhou.aliyuncs.com/odoohost/odoo10'
             self.DOMAIN = 'youbaninfo.com'
             self.CLUSTER_ADDRESS = 'https://master4g1.cs-cn-shanghai.aliyun.com:19504/projects/'
-            self.HOST_BASE_FOLDER = '/odoo'
+            self.HOST_BASE_DIR = '/odoo'
         
     #查询
     def view(self, name):
@@ -36,7 +36,7 @@ class Host:
     #customer客户名称
     def create(self, name, password, customer, memory):
         # #创建文件夹,ftp目录，也是容器卷，设置用户vsftpd增加安全性
-        cmdline = 'mkdir -p /odoo/customer/{0}/extra-addons && chmod 777 /odoo/customer/{0}/extra-addons && mkdir /odoo/customer/{0}/data  && chmod 777 /odoo/customer/{0}/data'.format(name)
+        cmdline = 'mkdir -p /odoo/customers/{0}/extra-addons && chmod 777 /odoo/customers/{0}/extra-addons && mkdir /odoo/customers/{0}/data  && chmod 777 /odoo/customers/{0}/data'.format(name)
         (status , output) = cmd.getstatusoutput(cmdline)
         print (status, output)
         #创建容器
@@ -140,14 +140,13 @@ class Host:
         environment:
             - 'ODOO_RC=/etc/odoo/odoo.conf'
             - 'PGDATA=/var/lib/postgresql/data'
+            - 'HOST_BASE_DIR={5}'
+            - 'INSTANCE_NAME={0}'
         labels:
             aliyun.proxy.VIRTUAL_HOST: '{2}'
             aliyun.routing.port_8069: '{3}'
             aliyun.scale: '1'
-        restart: always
-        volumes:
-            - {5}/customer/{0}/extra-addons:/extra-addons
-            - {5}/customer/{0}/data:/data""".format(name, memory, uri_proxy, uri_routing, self.IMAGE, self.HOST_BASE_FOLDER)
+        restart: always""".format(name, memory, uri_proxy, uri_routing, self.IMAGE, self.HOST_BASE_DIR)
         print template
 
         payload = {
